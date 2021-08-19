@@ -6,7 +6,7 @@
 -- [1] Ruehr. Fritz  The Evolution of a Haskell Programmer,
 -- Willamette University, http://www.willamette.edu/~fruehr/haskell/evolution.html
 
--- Tested with GHC 8.10.1 and QuickCheck 2.14.2.
+-- Tested with GHC 8.10.6 and QuickCheck 2.14.2.
 
 
 import Numeric.Natural
@@ -17,32 +17,54 @@ instance Arbitrary Natural where
     arbitrary = arbitrarySizedNatural
     shrink = shrinkIntegral
 
--- | The function to test fac1, fac2, fac3, fac4, fac5
+-- | The function to compare fac1, fac2, fac3, fac4, fac5
 fac :: Natural -> Natural
 fac n = product [1..n ]
 
 -- The names next to the following functions are the programmer level according to [1].
 
+
+
+-- | This function is simple. It takes an Natural number a evaluates if the number
+-- is zero and return 1. But if it isn't zero it does a recursion
 fac1 :: Natural -> Natural
 fac1 n = if n == 0      -- Freshman Haskell programmer
            then 1
            else n * fac1 (n-1)
 
+
+-- | This function is somewhat similar to the previous one. 
+-- However, this one makes use of lambda abstraction and prefix operations.
 fac2 :: Natural -> Natural
 fac2 = (\(n) ->         -- Sophomore Haskell programmer, at MIT
         (if ((==) n 0)
             then 1
             else ((*) n (fac2 ((-) n 1)))))
 
+-- | Here the recursion cases are not asked by means of 
+-- conditionals, but are asked directly from the function. But
+-- the logic is similar to the previous ones
 fac3 :: Natural -> Natural
 fac3 0 = 1      -- Another junior Haskell programmer
 fac3 n = n * fac3 (n-1)
 
+-- | foldr performs an operation through the elements of a list and accumulates
+-- it to an initially defined value, in this case the operation is *, the initial
+-- value to which it will accumulate is 1 and the list over which it will iterate is [1..n]. 
 fac4 :: Natural -> Natural
-fac4 = foldr (*) 1 . enumFromTo 1       -- “Points-free” Haskell programmer
+fac4 n = foldr (*) 1 [1..n]     -- Another senior Haskell programmer
 
+-- | In this function two important things are used: enumFromTo, foldr and ".". 
+-- enumFromTo is a function that generates a list from an initial element to a final one. 
+-- On the other hand, "." is the way to represent function composition in Haskell. 
+-- Finally, foldr performs an operation through the elements of a list
+-- and accumulates it to an initially defined value. 
+-- Therefore, in this function we take a natural, generate a list of
+-- numbers from 0 to n and then apply the multiplication for all the elements of the list
+-- starting from 1.
 fac5 :: Natural -> Natural
-fac5 n = snd (until ((>n) . fst) (\(i,m) -> (i+1, i*m)) (1,1))      -- Iterative one-liner Haskell programmer
+fac5 = foldr (*) 1 . enumFromTo 1       -- “Points-free” Haskell programmer
+
 
 ------------------------------------------------------------------------------
 -- Properties
