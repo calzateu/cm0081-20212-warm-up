@@ -9,3 +9,4 @@ GHC 8.10.6
 
 ## QuickCheck library version used
 QuickCheck 2.14.2
+
